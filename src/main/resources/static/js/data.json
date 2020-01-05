@@ -1,0 +1,16 @@
+{"total":14,"rows":[
+  {"name":"ID","value":"","group":"图形"},
+  {"name":"类型","value":"Point","group":"图形"},
+  {"name":"经度","value":"","group":"图形","editor":{"type":"numberbox","options":{"precision":8}}},
+  {"name":"纬度","value":"","group":"图形","editor":{"type":"numberbox","options":{"precision":8}}},
+  {"name":"透明度","value":"1","group":"图形","editor":{"type":"numberbox","options":{"precision":2}}},
+  {"name":"缩放比例","value":"1","group":"图形","editor":{"type":"numberbox","options":{"precision":2}}},
+  {"name":"跟随地图旋转","value":"false","group":"图形","editor":{"type":"combobox","options":{"valueField":"id","textField":"text","editable":false,"panelHeight":"auto","data":[{"id":"true","text":"true"},{"id":"false","text":"false"}]}}},
+  {"name":"旋转角度","value":"0","group":"图形","editor":{"type":"numberbox","options":{"precision":2}}},
+  {"name":"图片地址","value":"","group":"图形","editor":"text"},
+  {"name":"水平位置","value":"left","group":"文字","editor":{"type":"combobox","options":{"valueField":"id","textField":"text","editable":false,"panelHeight":"auto","data":[{"id":"left","text":"left"},{"id":"right","text":"right"},{"id":"center","text":"center"},{"id":"end","text":"end"},{"id":"start","text":"start"}]}}},
+  {"name":"垂直位置","value":"bottom","group":"文字","editor":{"type":"combobox","options":{"valueField":"id","textField":"text","editable":false,"panelHeight":"auto","data":[{"id":"bottom","text":"bottom"},{"id":"top","text":"top"},{"id":"middle","text":"middle"},{"id":"alphabetic","text":"alphabetic"},{"id":"hanging","text":"hanging"},{"id":"ideographic","text":"ideographic"}]}}},
+  {"name":"字体","value":"bold 12px 幼圆","group":"文字","editor":"text"},
+  {"name":"内容","value":"","group":"文字","editor":"text"},
+  {"name":"颜色","value":"#ff0000","group":"文字","editor":"text"}
+]}

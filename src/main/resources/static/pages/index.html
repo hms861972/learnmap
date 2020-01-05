@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>WebGis二次开发包实例</title>
+    <!--引入jquery框架-->
+    <script type="text/javascript" src="../js/jquery-easyui-1.4.2/jquery.min.js"></script>
+    <!--引入easyui前端开发包-->
+    <script type="text/javascript" src="../js/jquery-easyui-1.4.2/jquery.easyui.min.js"></script>
+    <script type='text/javascript' src='../js/jquery-easyui-1.4.2/locale/easyui-lang-zh_CN.js'></script>
+    <link rel="stylesheet" type="text/css" href="../js/jquery-easyui-1.4.2/themes/default/easyui.css">
+    <link rel="stylesheet" type="text/css" href="../js/jquery-easyui-1.4.2/themes/icon.css">
+    <link rel="stylesheet" type="text/css" href="../js/jquery-easyui-1.4.2/themes/color.css">
+    <!--引入Openlayers地理信息系统开发包-->
+    <script type="text/javascript" src="../js/Openlayers3.16.0/ol.js"></script>
+    <link rel="stylesheet" type="text/css" href="../js/Openlayers3.16.0/ol.css">
+    <!--引入地图列表扩展包-->
+    <script type="text/javascript" src="../js/Openlayers3.16.0/plugins/maplist.js"></script>
+    <!--引入测量控件扩展包-->
+    <script type="text/javascript" src="../js/Openlayers3.16.0/plugins/measure.js"></script>
+    <link rel="stylesheet" type="text/css" href="../js/Openlayers3.16.0/plugins/measure.css">
+    <!--引入点对象包-->
+    <script type="text/javascript" src="../js/Openlayers3.16.0/plugins/pointobject.js"></script>
+    <!--引入popup提示样式-->
+    <link rel="stylesheet" type="text/css" href="../js/Openlayers3.16.0/plugins/popup.css">
+    <!--引入折线对象包-->
+    <script type="text/javascript" src="../js/Openlayers3.16.0/plugins/lineobject.js"></script>
+    <!--引入贝塞尔曲线包-->
+    <script type="text/javascript" src="../js/Openlayers3.16.0/plugins/beziercurve.js"></script>
+    <!--引入箭头线包-->
+    <script type="text/javascript" src="../js/Openlayers3.16.0/plugins/arrowline.js"></script>
+    <!--引入多边形包-->
+    <script type="text/javascript" src="../js/Openlayers3.16.0/plugins/polygonobject.js"></script>
+    <!--引入位置变换或拖动包-->
+    <script type="text/javascript" src="../js/Openlayers3.16.0/plugins/drag.js"></script>
+    <!--自定义js-->
+    <script type="text/javascript" src="../js/initmap.js"></script>
+</head>
+<body class="easyui-layout" onload="initMap()">
+    <!--<div data-options="region:'north',border:false" style="height:60px;background: #B3DFDA;padding:10px" >north regoin</div>-->
+    <!--<div data-options="region:'west',split:true,title:'West'" style="wight:150px;padding:10px" >west Content</div>-->
+    <!--<div data-options="region:'east',split:true,collapsed:true,title:'East'" style="wight:100px;padding:10px" >east regoin</div>-->
+    <!--<div data-options="region:'south',border:false" style="height:50px;background: #A9FACD;padding:10px" >south regoin</div>-->
+    <!--<div data-options="region:'center',title:'Center'" ></div>-->
+    <!--整体页面顶部-->
+    <div data-options="region:'north'" style="height:100px;overflow: hidden;background-image: url('../images/bg_title.png');">
+        <img src="../images/toptitle.png" style="width:1050px;height: 80px;margin-top: 10px;margin-left: 30px;" />
+    </div>
+    <!--整体页面内容-->
+    <div data-options="region:'center'" class="easyui-layout" style="border: none" >
+        <!--顶部更具栏-->
+        <div data-options="region:'north'" style="height:35px;overflow: hidden;background-color: lightyellow">
+            <!--工具栏按键-->
+            <div style="float:left;padding-top:3px;padding-left: 10px;border:none;font-size: 10pt;">
+                <a id="btn_cljl" href="javascript:startControl('line',$('#btn_cljl'))" class="easyui-linkbutton" data-options="plain:true,iconCls:'icon-cj',toggle:true">测量距离</a>
+                <a id="btn_clmj" href="javascript:startControl('area',$('#btn_clmj'))" class="easyui-linkbutton" data-options="plain:true,iconCls:'icon-cmj',toggle:true">测量面积</a>|
+                <a id="btn_jxxz" href="javascript:startControl('rectSelect',$('#btn_jxxz'))" class="easyui-linkbutton" data-options="plain:true,iconCls:'icon-jxxz',toggle:true">矩形选择</a>
+                <a id="btn_yxxz" href="javascript:startControl('circleSelect',$('#btn_yxxz'))" class="easyui-linkbutton" data-options="plain:true,iconCls:'icon-yxxz',toggle:true">圆形选择</a>|
+                <input id="chk_point_drag" name="chk_point_drag" type="checkbox" checked="true" onchange="dragChange(this.checked)">可拖动&nbsp;|
+                <a href="#" class="easyui-menubutton" data-options="plain:true,iconCls:'icon-dzdt',menu:'#menu_maplist'">在线地图</a>
+                <a href="#" class="easyui-menubutton" data-options="plain:true,iconCls:'icon-wxdt',menu:'#menu_maplist_offline'">离线地图</a>
+                <a id="export-png" href="#" download="map.png" class="easyui-linkbutton" data-options="plain:true,iconCls:'icon-print'">地图导出</a>|
+                <a href="javascript:closeWindow();" class="easyui-linkbutton" data-options="plain:true,iconCls:'icon-no'">关闭</a>
+            </div>
+        </div>
+        <!--主体内容-->
+        <div data-options="region:'center'" class="easyui-layout">
+            <!--左侧导航栏-->
+            <div data-options="region:'west',collapsible:true" title="标图面板" style="width:270px;overflow: hidden;">
+                <div class="easyui-accordion" style="width:100%;height:100%;">
+                    <div title="点对象" data-options="iconCls:'icon-addpoint'" style="padding:10px;">
+                        <div style="height:35px;width: 100%;    ">
+                            <a class="easyui-menubutton c8" data-options="menu:'#menu_pointlist',iconCls:'icon-addpoint'">新增点对象</a>&nbsp;&nbsp;&nbsp;&nbsp;
+                            <a class="easyui-linkbutton" href="javascript:updatePoint(source_point, 'pg_point')" data-options="iconCls:'icon-reload'">刷新当前点</a>
+                        </div>
+                        <div style="width:100%;">
+                            <table id="pg_point" class="easyui-propertygrid" data-options="
+                                 url:'../js/data.json',
+                                       method: 'get',
+                                       showGroup: true,
+                                       scrollbarSize: 0,
+                                       showHeader:false,
+                                       columns: [[
+                                       {field:'name',title:'MyName',sortable:false},
+                                       {field:'value',title:'MyValue',width:170,resizable:false,formatter:function(value){
+                                       var s='<div>';
+                                       s += '<div style=\'float:right;width:18px;height:18px;background:'+value+'\'>&nbsp;</div>';
+                                       s += value;
+                                       s += '<div style=\'clear:both\'</div>';
+                                       s += '</div>';
+                                       return s;
+                                       } }
+                                       ]]">
+                            </table>
+                        </div>
+                    </div>
+                    <div title="折线" data-options="iconCls:'icon-line_zx'" style="padding:10px;">
+                        <div style="height:30px;width: 100%;font-family: 幼圆;font-size: 12pt;text-align: center">
+                            画连续折线
+                        </div>
+                        <div style="height:30px; width:100%;text-align: center">
+                            <a class="easyui-linkbutton" href="javascript:startDrawLine()" data-options="iconCls:'icon-playstart'">开始</a>&nbsp;&nbsp;
+                            <a class="easyui-linkbutton" href="javascript:stopDrawLine()" data-options="iconCls:'icon-playstop'">停止</a>&nbsp;&nbsp;
+                            <a class="easyui-linkbutton" href="javascript:clearDrawLine()" data-options="iconCls:'icon-playrefresh'">清除</a>&nbsp;&nbsp;
+                        </div>
+                        <div id="zx_croodinates" style="height:80%;width: 100%;font-family: 幼圆;font-size: 12pt;text-align: center">
+
+                        </div>
+                    </div>
+                    <div title="贝塞尔曲线" data-options="iconCls:'icon-line_bezier'" style="padding:10px;">
+                        <div style="height: 30px; width:100%;text-align: center">
+                            <a id="bsl1" class="easyui-linkbutton" href="javascript:drawBezierCurve(2)">随机画二阶曲线</a>
+                        </div>
+                        <div style="height: 140px; width:100%;text-align: center">
+                            <img src="../images/bezier/2jbezier.gif" /><br>
+                            B(t)=(1-t)<sup>2</sup>P<sub>0</sub>+2t(1-t)P<sub>1</sub>+t<sup>2</sup>P<sub>2</sub>,t∈[0,1]
+                        </div>
+                        <div style="height: 30px; width:100%;text-align: center">
+                            <a id="bsl2" class="easyui-linkbutton" href="javascript:drawBezierCurve(3)">随机画三阶曲线</a>
+                        </div>
+                        <div style="height: 150px; width:100%;text-align: center">
+                            <img src="../images/bezier/3jbezier.gif"/><br>
+                            B(t)=(1-t)<sup>3</sup>P<sub>0</sub>+3t(1-t)<sup>2</sup>P<sub>1</sub>+3t<sup>2</sup>(1-t)P<sub>2</sub>+t<sup>3</sup>P<sub>3</sub>,t∈[0,1]
+                        </div>
+                        <div style="height: 30px; width:100%;text-align: center">
+                            <a class="easyui-linkbutton" href="javascript:clearBezierCurve()" data-options="iconCls:'icon-playrefresh'">清除</a>
+                        </div>
+                        <div style="height: 150px; width:100%;text-align: center">
+                            <img src="../images/bezier/njform.png" style="width:250px;height:181px"/><br>
+                        </div>
+                    </div>
+                    <div title="在屏幕中央画一个矢量箭头" data-options="iconCls:'icon-line_arrow'" style="padding:10px;text-align: center">
+                        <div style="height: 30px; width:100%;text-align: center">
+                            <a class="easyui-linkbutton" href="javascript:drawArrowLine()">画箭头线</a>
+                            <a class="easyui-linkbutton" href="javascript:clearArrowLine()" data-options="iconCls:'icon-playrefresh'">清除</a>
+                        </div>
+                        <div style="height: 150px; width:100%;text-align: center">
+                            <img src="../images/arrow/arrow.png" style="width:250px;height:181px"/><br>
+                        </div>
+                    </div>
+                    <div title="多边形" data-options="iconCls:'icon-line_zx'" style="padding:10px;">
+                        <div style="height:30px;width: 100%;font-family: 幼圆;font-size: 12pt;text-align: center">
+                            随机生成点画多边形
+                        </div>
+                        <div style="height:30px; width:100%;text-align: center">
+                            <select id="cc_polygon" class="easyui-combobox" data-options="valueField:'id',textField:'text',editable:false,panelHeight:'auto',data:[{'id':3,'text':'三边形','selected':true},{'id':4,'text':'四边形'},{'id':5,'text':'五边形'},{'id':6,'text':'六边形'},{'id':7,'text':'七边形'},{'id':8,'text':'八边形'},{'id':9,'text':'九边形'},{'id':10,'text':'十边形'}]" style="width:70px;"></select>
+                            <a class="easyui-linkbutton" href="javascript:drawRegularPolygon($('#cc_polygon').combobox('getValue'))" data-options="iconCls:'icon-playstart'">随机画一个</a>&nbsp;&nbsp;
+                            <a class="easyui-linkbutton" href="javascript:clearRegularPolygon()" data-options="iconCls:'icon-playrefresh'">清除</a>
+                        </div>
+                    </div>
+                    <div title="圆" data-options="iconCls:'icon-line_qyx'" style="padding:10px;">
+                        <div style="height:30px;width: 100%;font-family: 幼圆;font-size: 12pt;text-align: center">
+                            随机画一个圆
+                        </div>
+                        <div style="height:30px;width: 100%;font-family: 幼圆;font-size: 12pt;text-align: center">
+                            半径：<input id="txt_radius" class="easyui-textbox" style="width:100px">
+                        </div>
+                        <div style="height: 30px; width:100%;text-align: center">
+                            <a class="easyui-linkbutton" href="javascript:drawCircle()" data-options="iconCls:'icon-playstart'">画一个圆</a>&nbsp;&nbsp;
+                            <a class="easyui-linkbutton" href="javascript:clearCircle()" data-options="iconCls:'icon-playrefresh'">清除</a>
+                        </div>
+                    </div>
+                    <div title="在屏幕中央画一个集结地域" data-options="iconCls:'icon-line_qyx'" style="padding:10px;">
+                        <div style="height: 30px; width:100%;text-align: center">
+                            <a class="easyui-linkbutton" href="javascript:drawRegion()" data-options="iconCls:'icon-playstart'">画集结地域</a>&nbsp;&nbsp;
+                            <a class="easyui-linkbutton" href="javascript:clearRegion()" data-options="iconCls:'icon-playrefresh'">清除</a>
+                        </div>
+                        <div style="height: 150px; width:100%;text-align: center">
+                            <img src="../images/region/region.png" style="width:250px;height:181px"/><br>
+                        </div>
+                    </div>
+                    <div title="用鼠标绘制图形" data-options="iconCls:'icon-line_qyx'" style="padding:10px;">
+                        <div style="height: 30px; width:100%;text-align: center">
+                            <a class="easyui-linkbutton" href="javascript:addDrawOnMap('Point')">画点</a>
+                            <a class="easyui-linkbutton" href="javascript:addDrawOnMap('LineString')">画折线</a>
+                            <a class="easyui-linkbutton" href="javascript:addDrawOnMap('Polygon')">画多边形</a>
+                            <a class="easyui-linkbutton" href="javascript:addDrawOnMap('Circle')">画圆形</a>
+                            <a class="easyui-linkbutton" href="javascript:addDrawOnMap('Square')">画正方形</a>
+                            <a class="easyui-linkbutton" href="javascript:addDrawOnMap('Box')">画矩形</a>
+                            <a class="easyui-linkbutton" href="javascript:clearDrawOnMap()" data-options="iconCls:'icon-playrefresh'">清除</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!--地图展示区域-->
+            <div data-options="region:'center'">
+                <div style= "overflow: hidden;width:100%;height: 100%;" id="map">
+                    <div id="popup" class="ol-popup">
+                        <a href="javascript:(0)" id="popup-closer" class="ol-popup-closer"></a>
+                        <div id="popup-content"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="menu_maplist" style="width:150px;">
+        <div  onclick="changeBaseMap([source_google])">Google电子地图</div>
+        <div  onclick="changeBaseMap([source_googledx])">Google地形图</div>
+        <div  onclick="changeBaseMap([source_googlesat])">Google卫星地图</div>
+        <div class="menu-sep"></div>
+        <div  onclick="changeBaseMap([source_qq])">腾讯soso电子地图</div>
+        <div  onclick="changeBaseMap([source_qqdx, source_qqdxlabel])">腾讯soso地形图</div>
+        <div  onclick="changeBaseMap([source_qqsat, null])">腾讯soso卫星地图</div>
+        <div class="menu-sep"></div>
+        <div  onclick="changeBaseMap([source_baidu])">百度电子地图</div>
+        <div  onclick="changeBaseMap([source_baidusat, source_baidusatlabel])">百度卫星地图</div>
+        <div class="menu-sep"></div>
+        <div  onclick="changeBaseMap([source_gaode])">高德电子地图</div>
+        <div  onclick="changeBaseMap([source_gaodesat, source_gaodesatlabel])">高德卫星地图</div>
+        <div class="menu-sep"></div>
+        <div  onclick="changeBaseMap([source_tiandi, source_tiandilabel])">天地电子地图</div>
+        <div  onclick="changeBaseMap([source_tiandisat, source_tiandilabel])">天地卫星地图</div>
+    </div>
+    <div id="menu_maplist_offline" style="width:150px;">
+        <div  onclick="changeBaseMap([source_arcgis_offline])">arcgis瓦片电子地图</div>
+        <div  onclick="changeBaseMap([source_arcgissat_offline])">arcgis瓦片卫星地图</div>
+        <div class="menu-sep"></div>
+        <div  onclick="changeBaseMap([source_sqlite_offline])">Sqlite数据库电子地图</div>
+        <div  onclick="changeBaseMap([source_sqlitesat_offline])">Sqlite数据库卫星地图 </div>
+    </div>
+    <div id="menu_pointlist" style="width:150px;">
+        <div data-options="iconCls:'icon-point_jc'" onclick="addPoint(source_point, '机场', 'jc.png')">机场</div>
+        <div data-options="iconCls:'icon-point_gk'" onclick="addPoint(source_point, '港口', 'gk.png')">港口</div>
+        <div data-options="iconCls:'icon-point_ck'" onclick="addPoint(source_point, '仓库', 'ck.png')">仓库</div>
+        <div data-options="iconCls:'icon-point_yz'" onclick="addPoint(source_point, '加油站', 'yz.png')">加油站</div>
+        <div class="menu-sep"></div>
+        <div data-options="iconCls:'icon-point_zlsc'" onclick="addPoint(source_point, '自来水厂', 'zlsc.png')">自来水厂</div>
+        <div data-options="iconCls:'icon-point_qy'" onclick="addPoint(source_point, '企业', 'qy.png')">企业</div>
+        <div data-options="iconCls:'icon-point_cl'" onclick="addPoint(source_point, '车辆', 'cl.png')">车辆</div>
+        <div class="menu-sep"></div>
+        <div data-options="iconCls:'icon-point_bg'" onclick="addPoint(source_point, '宾馆', 'bg.png')">宾馆</div>
+        <div data-options="iconCls:'icon-point_cy'" onclick="addPoint(source_point, '餐饮', 'cy.png')">餐饮</div>
+        <div data-options="iconCls:'icon-point_tcc'" onclick="addPoint(source_point, '高速收费站', 'tcc.png')">高速收费站</div>
+        <div data-options="iconCls:'icon-point_jyz'" onclick="addPoint(source_point, '加油站', 'jyz.png')">加油站</div>
+        <div data-options="iconCls:'icon-point_jtd'" onclick="addPoint(source_point, '交通灯', 'jtd.png')">交通灯</div>
+        <div data-options="iconCls:'icon-point_yh'" onclick="addPoint(source_point, '银行', 'yh.png')">银行</div>
+        <div data-options="iconCls:'icon-point_yy'" onclick="addPoint(source_point, '医院', 'yy.png')">医院</div>
+        <div data-options="iconCls:'icon-point_poi'" onclick="addPoint(source_point, '兴趣点', 'poi.png')">兴趣点</div>
+    </div>
+</body>
+</html>
